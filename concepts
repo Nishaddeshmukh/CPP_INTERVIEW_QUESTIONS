@@ -202,3 +202,7 @@ You can create pointers/references to an abstract class.
 
 You can create a derived class instance and refer to it using the abstract base class pointer.
 
+⭐ 6) difference between vectors and array ?
+Array → Fixed size, stored in stack (usually), no dynamic resizing.
+Vector → Dynamic size, stored in heap, automatically grows and offers many utility functions.
+
