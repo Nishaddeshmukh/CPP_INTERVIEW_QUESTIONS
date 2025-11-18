@@ -1,5 +1,204 @@
 1)  Final keyword usage 
 
+==> If you mark a class as final, no other class can derive from it.
+
+example :
+
+class Base final {
+public:
+    void show() {}
+};
+
+// ❌ Error: Cannot inherit from a final class
+class Derived : public Base { };
+
+==> When used on a virtual method, final means derived classes cannot override this function.
+
+class Base {
+public:
+    virtual void foo() final;  // cannot be overridden
+}; 
+
+class Derived : public Base {
+public:
+    // ❌ Error: foo is final in Base
+    void foo() override { }
+};
+
+===========================================
+Common interview pitfalls
+===========================================
+❌ Wrong: using final on non-virtual functions
+class A {
+    void foo() final;   // ❌ compile error: foo is not virtual
+};
+
+❌ Wrong: trying to override a final method
+void foo() final;      // in base class
+
+// later…
+void foo() override { }  // ❌ error
+
+❌ Wrong: trying to inherit from a final class
+class A final { };
+
+class B : public A { }; // ❌ error
+
+
 2)  default keyword usage
 
+Q1: Why use default if compiler already generates functions automatically?
+
+Answer:
+Because the moment you define any constructor, the compiler stops generating others.
+default restores them.
+
+==>  Real-world usage examples
+⭐ Make class non-copyable but movable
+
+class A {
+public:
+    A(const A&) = delete;
+    A& operator=(const A&) = delete;
+
+    A(A&&) = default;
+    A& operator=(A&&) = default;
+};
+
+
+==> Forgetting that defining one constructor deletes other constructiors 
+
+class A {
+public:
+    A(int x) {}        // You defined a constructor
+};
+
+A a;   // ❌ Error: default constructor not generated
+
+
+Fix:
+
+A() = default;
+
+==> Common Interview Pitfalls
+
+❌ Defaulting a function that is impossible to generate
+class A {
+    std::unique_ptr<int> p;
+
+public:
+    A(const A&) = default;   // ❌ Error: unique_ptr is non-copyable
+};
+
+❌ Combining delete and default incorrectly
+class A {
+public:
+    A() = delete;
+    A() = default;   // ❌ You cannot re-enable after delete
+};
+
+
 3)  lambda  alternative in c 
+
+“C does not support lambdas. The closest alternatives are using function pointers, simulating closures with a struct containing state and a function pointer, or using GCC nested functions as a non-standard extension.”
+
+✅ 1. Function Pointers (Most Common Alternative)
+
+You create a normal function and pass its pointer.
+
+Example:
+#include <stdio.h>
+
+void myFunc(int x) {
+    printf("Value = %d\n", x);
+}
+
+void caller(void (*f)(int)) {
+    f(10);
+}
+
+int main() {
+    caller(myFunc);
+    return 0;
+}
+
+
+✅ 2. Function Pointers + Context (Struct Closure Pattern)
+
+Since lambdas in other languages capture variables,
+in C we simulate this with a struct.
+
+Example (Closure-like behavior):
+#include <stdio.h>
+
+struct Closure {
+    int a;
+    void (*func)(int, struct Closure*);
+};
+
+void addFunc(int x, struct Closure* c) {
+    printf("%d\n", x + c->a);
+}
+
+int main() {
+    struct Closure c = { .a = 5, .func = addFunc };
+
+    c.func(10, &c);  // prints 15
+}
+
+
+This is how “closures” are usually emulated in C.
+
+4)  how we can call abstract class members ?
+==> “You can give a pure virtual function a definition, but you still cannot call it without a derived class object, because the class remains abstract and cannot be instantiated.”
+
+You call non-pure methods using a derived class object.
+
+Pure virtual methods are called through overridden methods in the derived class.
+
+Pure virtual methods can also have a definition and be called using scope resolution.
+
+==> ✅ Smallest possible example WITHOUT calling from derived class
+
+This is the closest valid example:
+We define a pure virtual function, but we never call it, because calling it requires an object.
+
+#include <iostream>
+using namespace std;
+
+class Base {
+public:
+    virtual void show() = 0;   // pure virtual
+};
+
+// pure virtual CAN have a body
+void Base::show() {
+    cout << "Pure virtual function body in Base\n";
+}
+
+int main() {
+    // Base b;  // ❌ ERROR: cannot create instance of abstract class
+}
+
+
+✔ This compiles
+✔ It shows a pure virtual function with a definition
+✘ But you cannot call it unless a derived class exists.
+
+⚠️ Why can't we call it like this?
+❌ Wrong: Base::show();   // ERROR — member function requires an object
+
+
+Pure virtual functions are non-static, so they require an instance.
+
+But: Base is abstract → cannot create object
+     Therefore → cannot call the function
+
+5) can we create insatnce of abstarct class?
+
+No, you cannot create an abstract class object.
+
+You can create pointers/references to an abstract class.
+
+You can create a derived class instance and refer to it using the abstract base class pointer.
+
