@@ -1,4 +1,4 @@
-1)  Final keyword usage 
+⭐ 1)  Final keyword usage 
 
 ==> If you mark a class as final, no other class can derive from it.
 
@@ -45,7 +45,7 @@ class A final { };
 class B : public A { }; // ❌ error
 
 
-2)  default keyword usage
+⭐ 2)  default keyword usage
 
 Q1: Why use default if compiler already generates functions automatically?
 
@@ -98,7 +98,7 @@ public:
 };
 
 
-3)  lambda  alternative in c 
+⭐ 3)  lambda  alternative in c 
 
 “C does not support lambdas. The closest alternatives are using function pointers, simulating closures with a struct containing state and a function pointer, or using GCC nested functions as a non-standard extension.”
 
@@ -149,7 +149,7 @@ int main() {
 
 This is how “closures” are usually emulated in C.
 
-4)  how we can call abstract class members ?
+⭐  4)  how we can call abstract class members ?
 ==> “You can give a pure virtual function a definition, but you still cannot call it without a derived class object, because the class remains abstract and cannot be instantiated.”
 
 You call non-pure methods using a derived class object.
@@ -194,7 +194,7 @@ Pure virtual functions are non-static, so they require an instance.
 But: Base is abstract → cannot create object
      Therefore → cannot call the function
 
-5) can we create insatnce of abstarct class?
+⭐ 5) can we create insatnce of abstarct class?
 
 No, you cannot create an abstract class object.
 
